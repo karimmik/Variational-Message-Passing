@@ -17,82 +17,69 @@ In every iteration, we approximate selected set and fix others set values. After
 
 $$
 \ln Q_i^\*(\mathbf H_i)
-= \big\langle \ln p(\mathbf H,\mathbf V) \big\rangle_{Q_{\neg i}}
-\;+\; \text{const.}
+= \big\langle \ln p(\mathbf H,\mathbf V) \big\rangle_{Q_{\neg i}} + \text{const}
 $$
 
 VMP turns this into local messages on a factor graph: each update only needs expectations from neighboring nodes (expected natural parameters), which makes the algorithm modular and fast.
 
 ## Model used in the code
 
-We assume data $(x_1,\dots,x_N)$ with
-$
-x_n \mid \mu, v \sim \mathcal N(\mu,\, \sigma^2),
-$
-and independent priors
-$
-\mu \sim \mathcal N(m_0,\ \beta),
-\sigma^2 \sim \mathrm{InvGamma}(a,\ b).
-$
+Assuming data $(x_1,\dots,x_N)$ with $x_n \mid \mu, v \sim \mathcal N(\mu,\, \sigma^2),$
+and independent priors $\mu \sim \mathcal N(m_0,\ \beta), \sigma^2 \sim \mathrm{InvGamma}(a,\ b). $
 
-We approximate with the mean-field family
+I approximate with the mean-field family
+
 $$
 Q(\mu)\,Q(v)
 = \mathcal N(\mu;\ m,\ \beta) \times \mathrm{InvGamma}(\sigma^2; a, b).
 $$
 
-> **Notation.** For the variance node \(v\) we use the **shape–scale** parameterization.
+> **Notation.** For the variance node $v$ we use the **shape–scale** parameterization.
 > Useful expectations:
-> $
-> \mathbb E\!\left[\tfrac{1}{v}\right]=\frac{a}{b},
+> $\mathbb E\!\left[\tfrac{1}{v}\right]=\frac{a}{b},
 > \qquad
-> \mathbb E[\ln v]=\ln(b)-\psi(a).
-> $
+> \mathbb E[\ln v]=\ln(b)-\psi(a).$
 
 ---
 
-
-
 ## Messages and updates (what the code implements)
 
-### 1) Variance $v \to$ data $x_n$
-Same for all \(n\):
-$
-\big\langle \mathbf u_v \big\rangle
-=
-\begin{bmatrix}
+### 1) Variance $v\to$ data $x_n$
+
+Same for all $n$:
+
+$$\langle \mathbf u_v \rangle=\begin{bmatrix}
 \langle 1/v\rangle\\[2pt]
 \langle \ln v\rangle
-\end{bmatrix}
-=
+\end{bmatrix}=
 \begin{bmatrix}
 \alpha/\beta\\[2pt]
 \ln\beta-\psi(\alpha)
-\end{bmatrix}.
-$
+\end{bmatrix}.$$
 
 ### 2) Data $x_n \to$ mean $\mu$
 Using only $\langle 1/v\rangle$:
 $$
-m_{x\to\mu}(x_n)\ \Rightarrow\
+m_{x\to v} =
 \begin{bmatrix}
-\langle 1/v\rangle\,x_n\\[2pt]
+\langle 1/v\rangle\,x_i\\[2pt]
 -\tfrac12\,\langle 1/v\rangle
 \end{bmatrix}.
 $$
 Summing over \(n\) and adding the Normal prior on $\mu$ gives canonical parameters
 $$
-\Lambda_\mu = \beta_0 + N\,\langle 1/v\rangle,
-\qquad
-\eta_\mu = \beta_0 m_0 + \langle 1/v\rangle\sum_{n=1}^N x_n.
+\phi_u =
+\begin{bmatrix}
+\beta\mu\\[2pt]
+-\beta/2
+\end{bmatrix} +
+\sum_{n=1}^N m_{x\to \mu}
 $$
-Hence the update
+
 $$
-Q(\mu)=\mathcal N\!\big(m,\ \Lambda_\mu^{-1}\big),
+\mu=-2 * \phi_u[1]
 \qquad
-m=\eta_\mu/\Lambda_\mu,
-\qquad
-\beta=\Lambda_\mu.
+\beta=\phi_u[0] / -2 * \phi_u[1]
 $$
 
 ### 3) Mean $\mu \to$ data $x_n$
@@ -106,24 +93,45 @@ $$
 ### 4) Data $x_n \to$ variance $v$
 Per datum (in the $[\ln v,\ 1/v]$ sufficient-stat order):
 $$
+m_{x\to y} =
 \begin{bmatrix}
 -\tfrac12\\[4pt]
--\tfrac12\,\mathbb E\!\big[(x_n-\mu)^2\big]
+-\tfrac12\,\mathbb E\!\big[(x_i-\mu)^2\big]
 \end{bmatrix},
 \qquad
-\mathbb E\!\big[(x_n-\mu)^2\big]=(x_n-m)^2+\beta^{-1}.
+\mathbb E\!\big[(x_i-\mu)^2\big]=(x_i-m)^2+\beta^{-1}.
 $$
-Summing over $n$ gives
-$$
-\sum_{n=1}^N m_{x\to v} =
-\begin{bmatrix}
--\tfrac12 N\\[4pt]
--\tfrac12\displaystyle\sum_{n=1}^N \big((x_n-m)^2+\beta^{-1}\big)
-\end{bmatrix}.
-$$
-Combining with the $\mathrm{InvGamma}(\alpha_0,\beta_0^{(v)})$ prior yields the closed-form update
+Summing over $n$ combining with the $\mathrm{InvGamma}(\alpha_0,\beta_0)$ prior yields the closed-form update
 $$
 \alpha = \alpha_0 + \frac{N}{2},
 \qquad
-\beta = \beta_0^{(v)} + \frac{1}{2}\sum_{n=1}^{N}\big((x_n-m)^2+\beta^{-1}\big).
+\beta = \beta_0 + \frac{1}{2}\sum_{n=1}^{N}\big((x_n-m)^2+\beta^{-1}\big).
 $$
+
+### Results and Conclusion
+
+I implemented Variational Message Passing (VMP) for a Gaussian likelihood with
+an unknown mean and variance, using a Normal factor for the mean and an
+Inverse-Gamma factor for the variance. Under the mean-field assumption
+$Q(\mu)Q(v)$, each iteration requires only local expectations:
+
+- the mean update uses $ \mathbb{E}[1/v] = \alpha/\beta $;
+- the variance update uses the summed expected squared residuals
+  $ \sum_n \mathbb{E}[(x_n-\mu)^2] = \sum_n (x_n-m)^2 + N/\beta $.
+
+![Mean approximation](img/output_mean.png)
+![Variance approximation](img/output_variance.png)
+
+With sensible priors (weak Normal prior on $\mu$, shape–scale Inv-Gamma for $v$
+centered near the data variance) the algorithm converges quickly and stably:
+$m$ moves from the prior toward the sample mean, while the posterior over
+$v$ tightens around the empirical variance. Using fixed priors $(\alpha_0,\beta_0)$
+at every iteration (rather than accumulating $\alpha$) and maintaining
+the correct message signs/order $[\ln v,\,1/v]$ prevents numerical issues
+(NaNs, negative scales). Optional damping further stabilizes updates on
+noisy datasets.
+
+Overall, VMP reproduces the closed-form conjugate updates while exposing
+them as modular “messages,” making the approach easy to extend to larger
+graphs (e.g., hierarchical means, mixture models).
+
