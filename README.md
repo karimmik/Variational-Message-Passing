@@ -34,7 +34,7 @@ Q(\mu)\,Q(v)
 = \mathcal N(\mu;\ m,\ \beta) \times \mathrm{InvGamma}(\sigma^2; a, b).
 $$
 
-> **Notation.** For the variance node $v$ we use the **shape–scale** parameterization.
+> **Notation.** For the variance node $v$ I use the **shape–scale** parameterization.
 > Useful expectations:
 > $\mathbb E\!\left[\tfrac{1}{v}\right]=\frac{a}{b},
 > \qquad
@@ -137,5 +137,6 @@ noisy datasets.
 Overall, VMP reproduces the closed-form conjugate updates while exposing
 them as modular “messages,” making the approach easy to extend to larger
 graphs (e.g., hierarchical means, mixture models).
+
 
 
