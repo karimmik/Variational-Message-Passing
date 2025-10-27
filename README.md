@@ -58,7 +58,8 @@ $$\langle \mathbf u_v \rangle=\begin{bmatrix}
 \end{bmatrix}.$$
 
 ### 2) Data $x_n \to$ mean $\mu$
-Using only $\langle 1/v\rangle$:
+Using only $\langle 1/v \rangle$ :
+
 $$
 m_{x\to v} =
 \begin{bmatrix}
@@ -66,7 +67,9 @@ m_{x\to v} =
 -\tfrac12\,\langle 1/v\rangle
 \end{bmatrix}.
 $$
+
 Summing over \(n\) and adding the Normal prior on $\mu$ gives canonical parameters
+
 $$
 \phi_u =
 \begin{bmatrix}
@@ -134,4 +137,5 @@ noisy datasets.
 Overall, VMP reproduces the closed-form conjugate updates while exposing
 them as modular “messages,” making the approach easy to extend to larger
 graphs (e.g., hierarchical means, mixture models).
+
 
