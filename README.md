@@ -49,11 +49,11 @@ $$
 Same for all $n$:
 
 $$\langle \mathbf u_v \rangle=\begin{bmatrix}
-\langle 1/v\rangle\\[2pt]
+\langle 1/v\rangle\\\
 \langle \ln v\rangle
 \end{bmatrix}=
 \begin{bmatrix}
-\alpha/\beta\\[2pt]
+\alpha/\beta\\\
 \ln\beta-\psi(\alpha)
 \end{bmatrix}.$$
 
@@ -62,7 +62,7 @@ Using only $\langle 1/v\rangle$:
 $$
 m_{x\to v} =
 \begin{bmatrix}
-\langle 1/v\rangle\,x_i\\[2pt]
+\langle 1/v\rangle\,x_i\\\
 -\tfrac12\,\langle 1/v\rangle
 \end{bmatrix}.
 $$
@@ -70,7 +70,7 @@ Summing over \(n\) and adding the Normal prior on $\mu$ gives canonical paramete
 $$
 \phi_u =
 \begin{bmatrix}
-\beta\mu\\[2pt]
+\beta\mu\\\
 -\beta/2
 \end{bmatrix} +
 \sum_{n=1}^N m_{x\to \mu}
@@ -84,18 +84,18 @@ $$
 
 ### 3) Mean $\mu \to$ data $x_n$
 The message needs the moments of $\mu$:
+
 $$
-\langle \mu\rangle = m,
-\qquad
-\langle \mu^2\rangle = m^2 + \beta^{-1}.
+\langle \mu \rangle = m, \qquad \langle \mu^2 \rangle = m^2 + \beta^{-1}.
 $$
 
 ### 4) Data $x_n \to$ variance $v$
 Per datum (in the $[\ln v,\ 1/v]$ sufficient-stat order):
+
 $$
 m_{x\to y} =
 \begin{bmatrix}
--\tfrac12\\[4pt]
+-\tfrac12\\\
 -\tfrac12\,\mathbb E\!\big[(x_i-\mu)^2\big]
 \end{bmatrix},
 \qquad
@@ -115,9 +115,9 @@ an unknown mean and variance, using a Normal factor for the mean and an
 Inverse-Gamma factor for the variance. Under the mean-field assumption
 $Q(\mu)Q(v)$, each iteration requires only local expectations:
 
-- the mean update uses $ \mathbb{E}[1/v] = \alpha/\beta $;
+- the mean update uses $\mathbb{E}[1/v] = \alpha/\beta$;
 - the variance update uses the summed expected squared residuals
-  $ \sum_n \mathbb{E}[(x_n-\mu)^2] = \sum_n (x_n-m)^2 + N/\beta $.
+  $\sum_n \mathbb{E}[(x_n-\mu)^2] = \sum_n (x_n-m)^2 + N/\beta$.
 
 ![Mean approximation](img/output_mean.png)
 ![Variance approximation](img/output_variance.png)
@@ -127,7 +127,7 @@ centered near the data variance) the algorithm converges quickly and stably:
 $m$ moves from the prior toward the sample mean, while the posterior over
 $v$ tightens around the empirical variance. Using fixed priors $(\alpha_0,\beta_0)$
 at every iteration (rather than accumulating $\alpha$) and maintaining
-the correct message signs/order $[\ln v,\,1/v]$ prevents numerical issues
+the correct message signs/order $[\ln v,1/v]$ prevents numerical issues
 (NaNs, negative scales). Optional damping further stabilizes updates on
 noisy datasets.
 
